@@ -3,7 +3,7 @@
 const express = require('express')
 const router = express.Router()
 
-const {validateAction, validateActionId} = require('./actions-middlware')
+const {validateAction, validateActionId, validateProjectId} = require('./actions-middlware')
 
 
 const Action = require('../actions/actions-model')
@@ -21,18 +21,32 @@ router.get('/:id' , validateActionId , (req, res) => {
     res.json(req.action)
 })
 
-// router.post('/' , validateActionId , validateAction , (req, res) => {
-//     Action.insert(
-//        req.body)
-//     .then(newAction => {
-//         res.status(201).json(newAction)
-//     })
-// })
+router.post('/' , validateProjectId , validateAction , (req, res, next) => {
+    const {project_id , description , notes , completed} = req.body
+    Action.insert({ project_id , description , notes , completed})
+    .then(newAction => {
+        res.status(201).json(newAction)
+    })
+    .catch(next)
+})
 
 
-// router.put('/:id' , (req , res , next) => {
+router.put('/:id' , validateAction , validateActionId, (req , res , next) => {
+    Action.update(req.params.id , {
+        project_id : req.body.project_id , 
+        description: req.body.description,
+        completed: req.body.completed, 
+        notes: req.body.notes
+    })
+    .then(() => {
+        return Action.get(req.params.id)
+    })
+    .then(updated => {
+        res.status(200).json(updated)
+    })
+    .catch(next)
+})
 
-// })
 
 router.delete('/:id' , validateActionId , (req, res , next) => {
     Action.remove(req.params.id)

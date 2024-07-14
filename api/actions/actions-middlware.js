@@ -1,6 +1,7 @@
 // add middlewares here related to actions
 
 const Action = require('./actions-model')
+const Project = require('../projects/projects-model')
 
 async function validateActionId (req, res, next) {
     try{
@@ -23,8 +24,8 @@ async function validateActionId (req, res, next) {
 
 
 async function validateAction (req, res, next) {
-    const { description , notes , completed } = req.body
-    if( !description || !notes || completed === undefined || req.params.id === project_id){
+    const {project_id ,  description , notes , completed } = req.body
+    if( !project_id || !description || !notes || completed === undefined || req.params.id === project_id){
         res.status(400).json({message: 'Please provide description, notes, and completed'})
     } else {
         req.body.description = description.trim()
@@ -32,6 +33,23 @@ async function validateAction (req, res, next) {
         next()
     }
    
+}
+
+async function validateProjectId(req, res, next) {
+    const projectId = req.body.project_id
+
+    try {
+        const project = await Project.get(projectId)
+        if (project) {
+            req.project = project
+            next()
+        } else {
+            return res.status(404).json({ message: `Project with ID ${projectId} not found.` })
+        }
+    } catch (error) {
+        console.error('Error validating project ID:', error)
+        res.status(500).json({ message: 'Error validating project ID.' })
+    }
 }
 
 
@@ -42,5 +60,6 @@ async function validateAction (req, res, next) {
 
 module.exports = {
     validateAction,
-    validateActionId
+    validateActionId,
+    validateProjectId,
 }
