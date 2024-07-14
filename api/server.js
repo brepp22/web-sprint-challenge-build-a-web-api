@@ -9,6 +9,10 @@ const projectsRouter = require('./projects/projects-router')
 
 server.use('/api/projects' , projectsRouter)
 
+server.use('/api/actions', actionsRouter)
+
+
+
 
 // Configure your server here
 // Build your actions router in /api/actions/actions-router.js

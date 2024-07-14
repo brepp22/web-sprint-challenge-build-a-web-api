@@ -6,7 +6,6 @@ async function validateProjectId(req, res, next) {
         const project = await Project.get(req.params.id)
         if(project){
             req.project = project 
-            console.log(req.project)
             next()
         } else{
             next({ status: 404 , message: `${req.params.id} not found`})
@@ -29,8 +28,23 @@ function validateProject(req, res, next) {
     }
 }
 
-function validateProjectAction(req, res, next){
+ async function validateProjectAction(req, res, next){
+    try{
+        const action =  await Project.getProjectActions(req.params.id)
+        if(action){
+            req.action = action
+            console.log(action)
+            next()
+        } else{
+            next({ status: 404 , message: `${req.params.id} not found`})
+        }
 
+    }catch(error){
+        res.status(500).json({ 
+            message: 'Problem Finding Project Action'
+        })
+    }
+    
 }
 
 module.exports = {
