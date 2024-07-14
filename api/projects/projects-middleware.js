@@ -19,7 +19,14 @@ async function validateProjectId(req, res, next) {
 }
 
 function validateProject(req, res, next) {
-
+    const { name , description , completed } = req.body
+    if(!name || !description || completed === undefined) {
+        res.status(400).json({message: "please provide name, description, and completed"})
+    } else {
+        req.body.name = name.trim()
+        req.body.description = description.trim()
+        next()
+    }
 }
 
 function validateProjectAction(req, res, next){
